@@ -16,9 +16,9 @@ class ExtBot(telegram.Bot):
 
 
 
-TOKEN: Final = '5653667475:AAFPeNKcdQS_BsyoxJHt7DpLwY9x_OsOQpI'
-BOT_USERNAME : Final = '@crypto_fatherbot'
-MY_PR : Final = 0.00055
+TOKEN: Final = 'Bot token'
+BOT_USERNAME : Final = '@bot username'
+MY_PR : Final = your rate
 
 bot = ExtBot(TOKEN)
 
@@ -27,7 +27,7 @@ bot = ExtBot(TOKEN)
 
 def get_coin_price(symbol: str) -> float:
     """Gets the price of a coin from CryptoCompare."""
-    url = 'https://min-api.cryptocompare.com/data/price?fsym={}&tsyms=USD'.format(symbol) 
+    url = your url 
     response = requests.get(url)
     response_json = response.json()
     if 'USD' in response_json and response_json['USD']:
@@ -106,63 +106,9 @@ class SpinnerControl:
 bot = telebot.TeleBot(TOKEN)
 
 # Define the command handler.
-
-async def buy_command(update: Update, context: ContextTypes.DEFAULT_TYPE): 
-
-    # Create a list of buttons.
-    buy_buttons = [
-        [InlineKeyboardButton('BTC', callback_data='BTC')],
-        [InlineKeyboardButton('ETH', callback_data='ETH')],
-        [InlineKeyboardButton('USDT', callback_data='USDT')],
-        [InlineKeyboardButton('BNB', callback_data='BNB')],
-        [InlineKeyboardButton('LTC', callback_data='LTC')],
-        [InlineKeyboardButton('MATIC', callback_data='MATIC')]
-    ]
-
-    # Create an InlineKeyboardMarkup object with the list of buttons.
-    reply_markup = InlineKeyboardMarkup(buy_buttons)
-
-    # Send the message with the reply keyboard.
-    await update.message.reply_text('What cryptocurrency do you want to buy?', reply_markup=reply_markup)
-
-# Define the callback handler for the button click.
-@bot.callback_query_handler(func=lambda query: query.data in ['BTC', 'ETH', 'USDT', 'BNB', 'LTC', 'MATIC'])
-async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE, rates={}):
-    query = update.callback_query
-    user_choice = query.data
-    rates = get_coin_price(user_choice) + MY_PR
-
-    # Prompt the telegram bot to reply with the user's choice.
-    await query.message.reply_text(f'You chose {user_choice} at {rates} USD')
-
-    # Create a spinner control for the amount input.
-    amount_spinner = SpinnerControl(min_value=0, max_value=100000, step_size=0.01)
-
-    # Serialize the spinner control to JSON.
-    spinner_control_json = json.dumps(amount_spinner, default=lambda obj: obj.__dict__)
-
-    # Send a message with the spinner control.
-    await query.message.reply_text(f'How much {user_choice} do you want to buy?', reply_markup=spinner_control_json) 
-
-
-# Define the message handler for the amount input.
-@bot.message_handler(func=lambda message: re.match(r'^\d+\.?\d{0,5}$', message.text))
-async def amount_callback(update: Update, context: ContextTypes.DEFAULT_TYPE, rates, user_choice):
-    user_data = context.user_data
-    amount = float(update.message.text)
-
-    # Calculate the total amount to be paid.
-    total_amount = rates * amount
-
-    # Send a confirmation message to the user.
-    await update.message.reply_text(f'Your payment for {amount} {user_choice} has been successful.')
-
-
-
-
 def get_current_naira_to_dollar_rate() -> float:
     """Gets the current Naira to Dollar rate."""
-    url = 'https://api.exchangeratesapi.io/latest?base=NGN'
+    url = 'your url'
     response = requests.get(url)
     response_json = response.json()
     return response_json['rates']['USD']
@@ -172,7 +118,7 @@ async def history_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
                                     '\nThis is done for security purposes. Thank you for your continuous patronage in our bot😊')
 
 async def contact_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text('Send a mail to moseeb57@gmail.com and our customer care agent will reply you at the soonest!😊, we apologise for any inconveniences')
+    await update.message.reply_text('Send a mail to beamofficial57@gmail.com and our customer care agent will reply you at the soonest!😊, we apologise for any inconveniences')
 
 #RESPONSES
 def handle_response(text: str):
@@ -233,9 +179,6 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('currencies', listCurrencies_command))
     app.add_handler(CommandHandler('prices', prices_command))
     app.add_handler(CommandHandler('rates', rates_command))
-    app.add_handler(CommandHandler('buy', buy_command))
-    app.add_handler(CallbackQueryHandler(button_callback))
-    app.add_handler(CallbackQueryHandler(amount_callback))
     app.add_handler(CommandHandler('history', history_command))
     app.add_handler(CommandHandler('contact', contact_command))
 
